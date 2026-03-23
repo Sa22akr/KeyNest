@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+
 import stripe
 from django.conf import settings
 from django.core.mail import send_mail
@@ -41,7 +43,14 @@ def create_checkout_session(request):
         return JsonResponse({"error": "Invalid request method."}, status=405)
 
     try:
-        data = json.loads(request.body)
+        if not request.body:
+            return JsonResponse({"error": "Empty request body."}, status=400)
+
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+
         cart = data.get("cart", [])
 
         if not cart:
@@ -49,6 +58,7 @@ def create_checkout_session(request):
 
         session = stripe.checkout.Session.create(
             mode="payment",
+            payment_method_types=["card"],
             line_items=[
                 {
                     "price_data": {
@@ -58,7 +68,7 @@ def create_checkout_session(request):
                         },
                         "unit_amount": int(float(item["price"]) * 100),
                     },
-                    "quantity": item["quantity"],
+                    "quantity": int(item["quantity"]),
                 }
                 for item in cart
             ],
@@ -69,7 +79,7 @@ def create_checkout_session(request):
         return JsonResponse({"url": session.url})
 
     except Exception as e:
-        print("🔥 CHECKOUT ERROR:", e)
+        print("🔥 CHECKOUT ERROR:", repr(e))
         return JsonResponse({"error": str(e)}, status=500)
 
 
@@ -94,18 +104,21 @@ def verify_session(request):
             "paid": paid,
             "sessionId": session.id,
             "amountTotal": f"{(session.amount_total or 0) / 100:.2f}",
-            "itemsSummary": items_summary
+            "itemsSummary": items_summary,
         })
 
     except Exception as e:
-        print("🔥 VERIFY SESSION ERROR:", e)
+        print("🔥 VERIFY SESSION ERROR:", repr(e))
         return JsonResponse({"paid": False, "error": str(e)}, status=500)
 
 
 @csrf_exempt
 def submit_order_form(request):
     if request.method != "POST":
-        return JsonResponse({"success": False, "error": "Invalid request method."}, status=405)
+        return JsonResponse(
+            {"success": False, "error": "Invalid request method."},
+            status=405
+        )
 
     try:
         if not request.body:
@@ -131,12 +144,30 @@ def submit_order_form(request):
 
         if not full_name or not email or not notes:
             return JsonResponse(
-                {"success": False, "error": "Full name, email, and notes are required."},
+                {
+                    "success": False,
+                    "error": "Full name, email, and notes are required."
+                },
                 status=400
             )
 
-        subject = f"New Order: {full_name}"
+        order_entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "full_name": full_name,
+            "email": email,
+            "product_summary": product_summary,
+            "amount_paid": amount_paid,
+            "payment_ref": payment_ref,
+            "notes": notes,
+        }
 
+        try:
+            with open(settings.ORDER_LOG_FILE, "a", encoding="utf-8") as f:
+                f.write(json.dumps(order_entry) + "\n")
+        except Exception as file_error:
+            print("🔥 ORDER LOG FILE ERROR:", repr(file_error))
+
+        subject = f"New Order: {full_name}"
         message = f"""
 NEW ORDER RECEIVED
 
@@ -153,16 +184,43 @@ Additional Notes:
 {notes}
 """
 
-        order_email = getattr(settings, "ORDER_NOTIFICATION_EMAIL", None)
-
-        if not order_email:
+        if not settings.EMAIL_HOST_USER:
             return JsonResponse(
-                {"success": False, "error": "ORDER_NOTIFICATION_EMAIL is not configured in settings.py"},
+                {"success": False, "error": "EMAIL_HOST_USER is not configured."},
                 status=500
             )
 
-        print("✅ EMAIL WOULD BE SENT HERE")
-        return JsonResponse({"success": True, "message": "Order submitted successfully."})
+        if not settings.EMAIL_HOST_PASSWORD:
+            return JsonResponse(
+                {"success": False, "error": "EMAIL_HOST_PASSWORD is not configured."},
+                status=500
+            )
+
+        if not settings.ORDER_NOTIFICATION_EMAIL:
+            return JsonResponse(
+                {"success": False, "error": "ORDER_NOTIFICATION_EMAIL is not configured."},
+                status=500
+            )
+
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [settings.ORDER_NOTIFICATION_EMAIL],
+                fail_silently=False,
+            )
+        except Exception as mail_error:
+            print("🔥 EMAIL ERROR:", repr(mail_error))
+            return JsonResponse(
+                {"success": False, "error": f"Email failed: {mail_error}"},
+                status=500
+            )
+
+        return JsonResponse({
+            "success": True,
+            "message": "Order submitted successfully."
+        })
 
     except Exception as e:
         print("🔥 EXACT ERROR:", repr(e))
