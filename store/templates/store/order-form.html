@@ -23,7 +23,6 @@
         <h1>Complete Your Order</h1>
         <p id="paymentStatusMessage">Checking your payment status...</p>
       </div>
-{% load static %}
 
 <a href="{% static 'store/activation-guide.pdf' %}" 
    target="_blank" 
@@ -34,41 +33,42 @@
         <div class="verified-banner">✅ Payment confirmed. Complete your details below.</div>
 
         <form id="orderForm" class="order-form">
-          <div class="form-grid">
-            <div class="input-group">
-              <label for="fullName">Full Name</label>
-              <input type="text" id="fullName" required />
-            </div>
+  {% csrf_token %}
 
-            <div class="input-group">
-              <label for="email">Your Email</label>
-              <input type="email" id="email" required />
-            </div>
+  <div class="form-grid">
+    <div class="input-group">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="full_name" required />
+    </div>
 
-            <div class="input-group full-width">
-              <label for="productSummary">Purchased Service</label>
-              <textarea id="productSummary" rows="4" readonly></textarea>
-            </div>
+    <div class="input-group">
+      <label for="email">Your Email</label>
+      <input type="email" id="email" name="email" required />
+    </div>
 
-            <div class="input-group">
-              <label for="amountPaid">Amount Paid (£)</label>
-              <input type="text" id="amountPaid" readonly />
-            </div>
+    <div class="input-group full-width">
+      <label for="productSummary">Purchased Service</label>
+      <textarea id="productSummary" name="product_summary" rows="4" readonly></textarea>
+    </div>
 
-            <div class="input-group">
-              <label for="paymentRef">Stripe Session ID</label>
-              <input type="text" id="paymentRef" readonly />
-            </div>
+    <div class="input-group">
+      <label for="amountPaid">Amount Paid (£)</label>
+      <input type="text" id="amountPaid" name="amount_paid" readonly />
+    </div>
 
+    <div class="input-group">
+      <label for="paymentRef">Stripe Session ID</label>
+      <input type="text" id="paymentRef" name="payment_ref" readonly />
+    </div>
 
-            <div class="input-group full-width">
-              <label for="notes">Paste Code Session Here</label>
-              <textarea id="notes" rows="5" placeholder="Paste copied text into the form" required></textarea>
-            </div>
-          </div>
+    <div class="input-group full-width">
+      <label for="notes">Paste Code Session Here</label>
+      <textarea id="notes" name="notes" rows="5" placeholder="Paste copied text into the form" required></textarea>
+    </div>
+  </div>
 
-          <button type="submit" class="btn primary submit-btn">Submit Order Details</button>
-        </form>
+  <button type="submit" class="btn primary submit-btn">Submit Order Details</button>
+</form>
       </div>
 
       <div id="paymentBlocked" class="blocked-box hidden">

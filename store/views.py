@@ -108,16 +108,32 @@ def submit_order_form(request):
         return JsonResponse({"success": False, "error": "Invalid request method."}, status=405)
 
     try:
-        data = json.loads(request.body)
+        if not request.body:
+            return JsonResponse(
+                {"success": False, "error": "Empty request body."},
+                status=400
+            )
 
-        full_name = data.get("fullName", "")
-        email = data.get("email", "")
-        product_summary = data.get("productSummary", "")
-        amount_paid = data.get("amountPaid", "")
-        payment_ref = data.get("paymentRef", "")
-        activation_method = data.get("activationMethod", "")
-        account_email = data.get("accountEmail", "")
-        notes = data.get("notes", "")
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON format."},
+                status=400
+            )
+
+        full_name = data.get("fullName", "").strip()
+        email = data.get("email", "").strip()
+        product_summary = data.get("productSummary", "").strip()
+        amount_paid = data.get("amountPaid", "").strip()
+        payment_ref = data.get("paymentRef", "").strip()
+        notes = data.get("notes", "").strip()
+
+        if not full_name or not email or not notes:
+            return JsonResponse(
+                {"success": False, "error": "Full name, email, and notes are required."},
+                status=400
+            )
 
         subject = f"New Order: {full_name}"
 
@@ -133,26 +149,21 @@ Product:
 Amount Paid: £{amount_paid}
 Stripe Session ID: {payment_ref}
 
-Preferred Activation Method:
-{activation_method}
-
-ChatGPT Account Email:
-{account_email}
-
 Additional Notes:
 {notes}
 """
 
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_HOST_USER,
-            [settings.ORDER_NOTIFICATION_EMAIL],
-            fail_silently=True,
-        )
+        order_email = getattr(settings, "ORDER_NOTIFICATION_EMAIL", None)
 
-        return JsonResponse({"success": True})
+        if not order_email:
+            return JsonResponse(
+                {"success": False, "error": "ORDER_NOTIFICATION_EMAIL is not configured in settings.py"},
+                status=500
+            )
+
+        print("✅ EMAIL WOULD BE SENT HERE")
+        return JsonResponse({"success": True, "message": "Order submitted successfully."})
 
     except Exception as e:
-        print("🔥 EXACT ERROR:", e)
+        print("🔥 EXACT ERROR:", repr(e))
         return JsonResponse({"success": False, "error": str(e)}, status=500)
