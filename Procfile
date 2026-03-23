@@ -1,0 +1,1 @@
+web: gunicorn keynest_project.wsgi:application

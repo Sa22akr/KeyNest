@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thank You | KeyNest</title>
+  <link rel="stylesheet" href="{% static 'store/style.css' %}" />
+</head>
+<body>
+  <main class="thank-you-page">
+    <section class="thank-you-card">
+      <div class="tick">✓</div>
+      <h1>Order Submitted Successfully</h1>
+      <p>Your payment was confirmed and your order details were sent successfully.</p>
+      <a href="{% url 'home' %}" class="btn primary">Back to Homepage</a>
+    </section>
+  </main>
+</body>
+</html>

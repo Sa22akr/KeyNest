@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>keyNest | ChatGPT Plus Activation</title>
+  <link rel="stylesheet" href="{% static 'store/style.css' %}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">KeyNest</div>
+
+    <nav class="nav" id="navMenu">
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'cart' %}">
+        Cart <span id="cartCount" class="cart-count">0</span>
+      </a>
+    </nav>
+
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-text">
+        <span class="badge">Manual fulfilment • Secure checkout</span>
+
+<a href="{% static 'store/activation-guide.pdf' %}" 
+   target="_blank" 
+   class="btn primary">
+  📄 Check activation guide ↗
+</a>
+        <h1>ChatGPT Plus - 1 Month Activation Service</h1>
+        <p>
+  Why pay £20 monthly for ChatGPT Plus when you can get the same access for half the price? 
+  Our secure activation service gives you premium features at a more affordable cost, with fast and reliable processing.
+</p>
+        <div class="hero-actions">
+          <a href="#product" class="btn primary">Buy Now</a>
+          <a href="{% url 'cart' %}" class="btn secondary">View Cart</a>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <h3>How it works</h3>
+        <div class="step-item"><span>1</span><p>Check Activation Guide</p></div>
+        <div class="step-item"><span>2</span><p>Add service to cart</p></div>
+        <div class="step-item"><span>3</span><p>Pay securely with Stripe</p></div>
+        <div class="step-item"><span>4</span><p>Fill order form after payment</p></div>
+        <div class="step-item"><span>5</span><p>Receive manual processing</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="product">
+      <div class="single-product-card">
+        <div class="single-product-image">GPT+</div>
+
+        <div class="single-product-content">
+          <span class="platform">ChatGPT</span>
+          <h2>ChatGPT Plus - 1 Month Activation Service</h2>
+          <p>
+            Manual activation support for one month after successful payment
+            and order form submission.
+          </p>
+
+          <div class="disclaimer-box">
+            This is an independent service and is not affiliated with OpenAI.
+          </div>
+
+          <div class="price-row big">
+            <strong>£10.00</strong>
+            <button
+              class="btn primary"
+              id="addToCartBtn"
+              type="button"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contact-section">
+  <div class="form-card">
+    <h2>Need Help?</h2>
+    <p>If you have any questions about your order or activation, feel free to contact us.</p>
+
+    <div class="contact-methods">
+      <p>📧 Email: rationalfxgroup@gmail.com</a></p>
+      <p>💬 WhatsApp: <a href="https://wa.me/447823656384" target="_blank">Chat on WhatsApp</a></p>
+    </div>
+  </div>
+</section>
+  </main>
+
+  <script>
+    const storeProduct = {
+      id: 1,
+      name: "ChatGPT Plus - 1 Month Activation Service",
+      platform: "ChatGPT",
+      price: 10,
+      code: "GPT+"
+    };
+  </script>
+  <script src="{% static 'store/script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Form | KeyNest</title>
+  <link rel="stylesheet" href="{% static 'store/style.css' %}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">KeyNest</div>
+    <nav class="nav" id="navMenu">
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'cart' %}">Cart</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn">☰</button>
+  </header>
+
+  <main class="form-page">
+    <section class="form-card">
+      <div class="section-heading left">
+        <h1>Complete Your Order</h1>
+        <p id="paymentStatusMessage">Checking your payment status...</p>
+      </div>
+{% load static %}
+
+<a href="{% static 'store/activation-guide.pdf' %}" 
+   target="_blank" 
+   class="btn primary">
+  📄 Check activation guide ↗
+</a>
+      <div id="orderFormWrapper" class="hidden">
+        <div class="verified-banner">✅ Payment confirmed. Complete your details below.</div>
+
+        <form id="orderForm" class="order-form">
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="fullName">Full Name</label>
+              <input type="text" id="fullName" required />
+            </div>
+
+            <div class="input-group">
+              <label for="email">Your Email</label>
+              <input type="email" id="email" required />
+            </div>
+
+            <div class="input-group full-width">
+              <label for="productSummary">Purchased Service</label>
+              <textarea id="productSummary" rows="4" readonly></textarea>
+            </div>
+
+            <div class="input-group">
+              <label for="amountPaid">Amount Paid (£)</label>
+              <input type="text" id="amountPaid" readonly />
+            </div>
+
+            <div class="input-group">
+              <label for="paymentRef">Stripe Session ID</label>
+              <input type="text" id="paymentRef" readonly />
+            </div>
+
+
+            <div class="input-group full-width">
+              <label for="notes">Paste Code Session Here</label>
+              <textarea id="notes" rows="5" placeholder="Paste copied text into the form" required></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn primary submit-btn">Submit Order Details</button>
+        </form>
+      </div>
+
+      <div id="paymentBlocked" class="blocked-box hidden">
+        <p>This form is only available after successful payment.</p>
+        <a href="{% url 'cart' %}" class="btn secondary">Go Back to Cart</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="{% static 'store/script.js' %}"></script>
+</body>
+</html>
