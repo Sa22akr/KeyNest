@@ -149,8 +149,6 @@ async function startStripeCheckout() {
       throw new Error("Server returned a non-JSON response.");
     }
 
-    console.log("Stripe checkout response:", data);
-
     if (response.ok && data.url) {
       window.location.href = data.url;
       return;
@@ -189,7 +187,16 @@ async function verifyStripeSessionAndUnlockForm() {
 
   try {
     const response = await fetch(`/verify-session/?session_id=${encodeURIComponent(sessionId)}`);
-    const data = await response.json();
+    const contentType = response.headers.get("content-type") || "";
+    let data = {};
+
+    if (contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      console.error("Non-JSON verify-session response:", text);
+      throw new Error("Server returned a non-JSON response while verifying payment.");
+    }
 
     if (data.paid) {
       statusMessage.textContent = "Payment confirmed. Please complete your order details.";
@@ -204,12 +211,12 @@ async function verifyStripeSessionAndUnlockForm() {
       updateCartCount();
       updateAddToCartButtonState();
     } else {
-      statusMessage.textContent = "Your payment has not been confirmed.";
+      statusMessage.textContent = data.error || "Your payment has not been confirmed.";
       blockedBox.classList.remove("hidden");
     }
   } catch (error) {
-    console.error(error);
-    statusMessage.textContent = "Could not verify payment status.";
+    console.error("Verify session error:", error);
+    statusMessage.textContent = error.message || "Could not verify payment status.";
     blockedBox.classList.remove("hidden");
   }
 }
@@ -241,16 +248,25 @@ function handleOrderFormSubmission() {
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type") || "";
+      let data = {};
 
-      if (data.success) {
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error("Non-JSON response from submit-order-form:", text);
+        throw new Error("Server returned a non-JSON response.");
+      }
+
+      if (response.ok && data.success) {
         window.location.href = "/thank-you/";
       } else {
-        alert("Could not submit form.");
+        alert(data.error || "Could not submit form.");
       }
     } catch (error) {
-      console.error(error);
-      alert("There was an error submitting the form.");
+      console.error("Order form submission error:", error);
+      alert(error.message || "There was an error submitting the form.");
     }
   });
 }

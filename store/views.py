@@ -20,16 +20,19 @@ PRODUCT = {
 
 
 def home(request):
-    return render(request, 'store/index.html')
+    return render(request, "store/index.html")
+
 
 def cart(request):
-    return render(request, 'store/cart.html')
+    return render(request, "store/cart.html")
+
 
 def order_form(request):
-    return render(request, 'store/order-form.html')
+    return render(request, "store/order-form.html")
+
 
 def thank_you(request):
-    return render(request, 'store/thank-you.html')
+    return render(request, "store/thank-you.html")
 
 
 @csrf_exempt
@@ -66,6 +69,7 @@ def create_checkout_session(request):
         return JsonResponse({"url": session.url})
 
     except Exception as e:
+        print("🔥 CHECKOUT ERROR:", e)
         return JsonResponse({"error": str(e)}, status=500)
 
 
@@ -94,6 +98,7 @@ def verify_session(request):
         })
 
     except Exception as e:
+        print("🔥 VERIFY SESSION ERROR:", e)
         return JsonResponse({"paid": False, "error": str(e)}, status=500)
 
 
@@ -143,11 +148,11 @@ Additional Notes:
             message,
             settings.EMAIL_HOST_USER,
             [settings.ORDER_NOTIFICATION_EMAIL],
-            fail_silently=False,
+            fail_silently=True,
         )
 
         return JsonResponse({"success": True})
 
     except Exception as e:
-       print("🔥 EXACT ERROR:", e)
-       return JsonResponse({"success": False, "error": str(e)}, status=500)
+        print("🔥 EXACT ERROR:", e)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
