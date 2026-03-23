@@ -18,7 +18,6 @@ PRODUCT = {
     ),
 }
 
-
 def home(request):
     return render(request, 'store/index.html')
 
