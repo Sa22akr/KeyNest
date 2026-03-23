@@ -149,5 +149,5 @@ Additional Notes:
         return JsonResponse({"success": True})
 
     except Exception as e:
-        print("EMAIL ERROR:", e)
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
+       print("🔥 EXACT ERROR:", e)
+       return JsonResponse({"success": False, "error": str(e)}, status=500)
