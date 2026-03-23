@@ -4,6 +4,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("test/", lambda request: HttpResponse("TEST PAGE WORKS")),
     path("", include("store.urls")),
 ]
