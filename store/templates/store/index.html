@@ -9,10 +9,11 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="logo">KeyNest</div>
+    <div class="logo">
+  <a href="{% url 'home' %}">KeyNest</a>
+</div>
 
     <nav class="nav" id="navMenu">
-      <a href="{% url 'home' %}">Home</a>
       <a href="{% url 'cart' %}">
         Cart <span id="cartCount" class="cart-count">0</span>
       </a>
