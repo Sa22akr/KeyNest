@@ -229,14 +229,12 @@ function handleOrderFormSubmission() {
     event.preventDefault();
 
     const payload = {
-      fullName: document.getElementById("fullName")?.value || "",
-      email: document.getElementById("email")?.value || "",
-      productSummary: document.getElementById("productSummary")?.value || "",
-      amountPaid: document.getElementById("amountPaid")?.value || "",
-      paymentRef: document.getElementById("paymentRef")?.value || "",
-      activationMethod: document.getElementById("activationMethod")?.value || "",
-      accountEmail: document.getElementById("accountEmail")?.value || "",
-      notes: document.getElementById("notes")?.value || ""
+      full_name: document.getElementById("fullName")?.value.trim() || "",
+      email: document.getElementById("email")?.value.trim() || "",
+      product_summary: document.getElementById("productSummary")?.value.trim() || "",
+      amount_paid: document.getElementById("amountPaid")?.value.trim() || "",
+      payment_ref: document.getElementById("paymentRef")?.value.trim() || "",
+      notes: document.getElementById("notes")?.value.trim() || ""
     };
 
     try {
