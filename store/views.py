@@ -137,14 +137,7 @@ def submit_order_form(request):
             payment_ref = request.POST.get("payment_ref", "").strip()
             notes = request.POST.get("notes", "").strip()
 
-        if not full_name or not email or not notes:
-            return JsonResponse(
-                {
-                    "success": False,
-                    "error": "Full name, email, and notes are required."
-                },
-                status=400
-            )
+ 
 
         message = f"""
 New KeyNest order received
