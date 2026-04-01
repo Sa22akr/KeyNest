@@ -137,7 +137,18 @@ def submit_order_form(request):
             payment_ref = request.POST.get("payment_ref", "").strip()
             notes = request.POST.get("notes", "").strip()
 
- 
+        print("CONTENT TYPE:", request.content_type)
+        print("full_name:", full_name)
+        print("email:", email)
+        print("notes:", notes)
+        print("ORDER_NOTIFICATION_EMAIL:", settings.ORDER_NOTIFICATION_EMAIL)
+        print("DEFAULT_FROM_EMAIL:", getattr(settings, "DEFAULT_FROM_EMAIL", "MISSING"))
+
+        if not full_name or not email or not notes:
+            return JsonResponse(
+                {"success": False, "error": "Full name, email, and notes are required."},
+                status=400
+            )
 
         message = f"""
 New KeyNest order received
@@ -166,15 +177,12 @@ Submitted Code / Notes:
         )
 
         return JsonResponse(
-            {
-                "success": True,
-                "message": "Order submitted successfully."
-            }
+            {"success": True, "message": "Order submitted successfully."}
         )
 
     except Exception as e:
         print("🔥 SUBMIT ORDER FORM ERROR:", repr(e))
         return JsonResponse(
-            {"success": False, "error": str(e)},
+            {"success": False, "error": repr(e)},
             status=500
         )
