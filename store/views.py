@@ -121,12 +121,21 @@ def submit_order_form(request):
         )
 
     try:
-        full_name = request.POST.get("full_name", "").strip()
-        email = request.POST.get("email", "").strip()
-        product_summary = request.POST.get("product_summary", "").strip()
-        amount_paid = request.POST.get("amount_paid", "").strip()
-        payment_ref = request.POST.get("payment_ref", "").strip()
-        notes = request.POST.get("notes", "").strip()
+        if request.content_type and "application/json" in request.content_type:
+            data = json.loads(request.body or "{}")
+            full_name = data.get("full_name", "").strip()
+            email = data.get("email", "").strip()
+            product_summary = data.get("product_summary", "").strip()
+            amount_paid = data.get("amount_paid", "").strip()
+            payment_ref = data.get("payment_ref", "").strip()
+            notes = data.get("notes", "").strip()
+        else:
+            full_name = request.POST.get("full_name", "").strip()
+            email = request.POST.get("email", "").strip()
+            product_summary = request.POST.get("product_summary", "").strip()
+            amount_paid = request.POST.get("amount_paid", "").strip()
+            payment_ref = request.POST.get("payment_ref", "").strip()
+            notes = request.POST.get("notes", "").strip()
 
         if not full_name or not email or not notes:
             return JsonResponse(
@@ -173,9 +182,6 @@ Submitted Code / Notes:
     except Exception as e:
         print("🔥 SUBMIT ORDER FORM ERROR:", repr(e))
         return JsonResponse(
-            {
-                "success": False,
-                "error": str(e)
-            },
+            {"success": False, "error": str(e)},
             status=500
         )
