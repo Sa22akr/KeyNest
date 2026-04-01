@@ -104,3 +104,10 @@ ORDER_NOTIFICATION_EMAIL = os.getenv("ORDER_NOTIFICATION_EMAIL", EMAIL_HOST_USER
 # ORDER STORAGE
 # ===============================
 ORDER_LOG_FILE = BASE_DIR / "order_submissions.jsonl"
+
+# ===============================
+# RESEND SETTINGS
+# ===============================
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+ORDER_NOTIFICATION_EMAIL = os.getenv("ORDER_NOTIFICATION_EMAIL", "sammyperazzi@gmail.com")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "orders@keynest.cc")

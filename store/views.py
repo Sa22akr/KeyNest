@@ -1,4 +1,5 @@
 import json
+import resend
 from datetime import datetime
 
 import stripe
@@ -137,44 +138,55 @@ def submit_order_form(request):
             payment_ref = request.POST.get("payment_ref", "").strip()
             notes = request.POST.get("notes", "").strip()
 
-        print("CONTENT TYPE:", request.content_type)
-        print("full_name:", full_name)
-        print("email:", email)
-        print("notes:", notes)
-        print("ORDER_NOTIFICATION_EMAIL:", settings.ORDER_NOTIFICATION_EMAIL)
-        print("DEFAULT_FROM_EMAIL:", getattr(settings, "DEFAULT_FROM_EMAIL", "MISSING"))
-
         if not full_name or not email or not notes:
             return JsonResponse(
                 {"success": False, "error": "Full name, email, and notes are required."},
                 status=400
             )
 
-        message = f"""
-New KeyNest order received
+        order_data = {
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "full_name": full_name,
+            "email": email,
+            "product_summary": product_summary,
+            "amount_paid": amount_paid,
+            "payment_ref": payment_ref,
+            "notes": notes,
+        }
 
-Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        try:
+            with open(settings.ORDER_LOG_FILE, "a", encoding="utf-8") as f:
+                f.write(json.dumps(order_data) + "\n")
+            print("✅ Order saved to file")
+        except Exception as e:
+            print("❌ Could not save order to file:", str(e))
 
-Customer Name: {full_name}
-Customer Email: {email}
+        if settings.RESEND_API_KEY:
+            resend.api_key = settings.RESEND_API_KEY
 
-Purchased Service:
-{product_summary}
+            html_content = f"""
+            <h2>New KeyNest Order Received</h2>
+            <p><strong>Date:</strong> {order_data['date']}</p>
+            <p><strong>Customer Name:</strong> {full_name}</p>
+            <p><strong>Customer Email:</strong> {email}</p>
+            <p><strong>Purchased Service:</strong><br>{product_summary}</p>
+            <p><strong>Amount Paid:</strong> £{amount_paid}</p>
+            <p><strong>Stripe Session ID:</strong> {payment_ref}</p>
+            <p><strong>Submitted Code / Notes:</strong><br>{notes}</p>
+            """
 
-Amount Paid: £{amount_paid}
-Stripe Session ID: {payment_ref}
-
-Submitted Code / Notes:
-{notes}
-"""
-
-        send_mail(
-            subject="New KeyNest Order Submission",
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[settings.ORDER_NOTIFICATION_EMAIL],
-            fail_silently=False,
-        )
+            try:
+                response = resend.Emails.send({
+                    "from": settings.DEFAULT_FROM_EMAIL,
+                    "to": [settings.ORDER_NOTIFICATION_EMAIL],
+                    "subject": "New KeyNest Order Submission",
+                    "html": html_content,
+                })
+                print("✅ Resend email sent successfully:", response)
+            except Exception as e:
+                print("❌ Resend email failed:", str(e))
+        else:
+            print("⚠️ RESEND_API_KEY is not set, skipping email send")
 
         return JsonResponse(
             {"success": True, "message": "Order submitted successfully."}
