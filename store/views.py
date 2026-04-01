@@ -67,7 +67,7 @@ def create_checkout_session(request):
                         "product_data": {
                             "name": f"{item['name']} ({item['platform']})"
                         },
-                        "unit_amount": int(float(item["price"]) * 10),
+                        "unit_amount": int(float(item["price"]) * 100),
                     },
                     "quantity": int(item["quantity"]),
                 }
