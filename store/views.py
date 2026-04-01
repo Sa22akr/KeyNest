@@ -111,7 +111,6 @@ def verify_session(request):
         print("🔥 VERIFY SESSION ERROR:", repr(e))
         return JsonResponse({"paid": False, "error": str(e)}, status=500)
 
-
 @csrf_exempt
 def submit_order_form(request):
     if request.method != "POST":
@@ -168,13 +167,17 @@ Submitted Code / Notes:
 {notes}
 """
 
-        send_mail(
-            subject="New KeyNest Order Submission",
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[settings.ORDER_NOTIFICATION_EMAIL],
-            fail_silently=False,
-        )
+        try:
+            send_mail(
+                subject="New KeyNest Order Submission",
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.ORDER_NOTIFICATION_EMAIL],
+                fail_silently=False,
+            )
+            print("✅ Email sent successfully")
+        except Exception as e:
+            print("❌ Email failed:", str(e))
 
         return JsonResponse(
             {"success": True, "message": "Order submitted successfully."}
