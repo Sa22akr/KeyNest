@@ -114,7 +114,68 @@ def verify_session(request):
 
 @csrf_exempt
 def submit_order_form(request):
-    return JsonResponse({
-        "success": True,
-        "message": "submit_order_form reached"
-    })
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False, "error": "Invalid request method."},
+            status=405
+        )
+
+    try:
+        full_name = request.POST.get("full_name", "").strip()
+        email = request.POST.get("email", "").strip()
+        product_summary = request.POST.get("product_summary", "").strip()
+        amount_paid = request.POST.get("amount_paid", "").strip()
+        payment_ref = request.POST.get("payment_ref", "").strip()
+        notes = request.POST.get("notes", "").strip()
+
+        if not full_name or not email or not notes:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Full name, email, and notes are required."
+                },
+                status=400
+            )
+
+        message = f"""
+New KeyNest order received
+
+Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+Customer Name: {full_name}
+Customer Email: {email}
+
+Purchased Service:
+{product_summary}
+
+Amount Paid: £{amount_paid}
+Stripe Session ID: {payment_ref}
+
+Submitted Code / Notes:
+{notes}
+"""
+
+        send_mail(
+            subject="New KeyNest Order Submission",
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.ORDER_NOTIFICATION_EMAIL],
+            fail_silently=False,
+        )
+
+        return JsonResponse(
+            {
+                "success": True,
+                "message": "Order submitted successfully."
+            }
+        )
+
+    except Exception as e:
+        print("🔥 SUBMIT ORDER FORM ERROR:", repr(e))
+        return JsonResponse(
+            {
+                "success": False,
+                "error": str(e)
+            },
+            status=500
+        )

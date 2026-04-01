@@ -88,7 +88,6 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
 
 BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000")
-
 # ===============================
 # EMAIL SETTINGS
 # ===============================
@@ -98,7 +97,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-ORDER_NOTIFICATION_EMAIL = os.getenv("ORDER_NOTIFICATION_EMAIL", "")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+ORDER_NOTIFICATION_EMAIL = os.getenv("ORDER_NOTIFICATION_EMAIL", EMAIL_HOST_USER)
 
 # ===============================
 # ORDER STORAGE
